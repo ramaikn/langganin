@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{% if back %}{% url back %}{% else %}{% url 'dashboard' %}{% endif %}">← Kembali</a><h1>{{ title|default:'Ubah kata sandi' }}</h1></div></div>
+<section class="panel form-panel">{% if hint %}<p class="form-hint">{{ hint }}</p>{% endif %}
+<form method="post">{% csrf_token %}{{ form.non_field_errors }}
+{% for field in form %}{% if field.is_hidden %}{{ field }}{{ field.errors }}{% else %}<div class="field {% if field.field.widget.input_type == 'checkbox' %}checkbox-field{% endif %}">{{ field.label_tag }}{{ field }}{% if field.help_text %}<div class="help">{{ field.help_text|safe }}</div>{% endif %}{{ field.errors }}</div>{% endif %}{% endfor %}
+<div class="form-actions"><button class="button" type="submit">Simpan</button><a class="button secondary" href="{% if back %}{% url back %}{% else %}{% url 'dashboard' %}{% endif %}">Batal</a></div>
+</form></section>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% load static %}<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173c32"><meta name="robots" content="noindex,nofollow">
+  <title>{% block title %}{{ title|default:'Masuk' }}{% endblock %} · Langganin</title>
+  <link rel="icon" href="{% static 'mark.svg' %}" type="image/svg+xml">
+  <link rel="stylesheet" href="{% static 'app.css' %}">
+</head>
+<body class="{% if not user.is_authenticated %}auth-body{% endif %}">
+{% if user.is_authenticated %}
+<aside class="sidebar">
+  <a class="brand" href="{% url 'dashboard' %}"><img src="{% static 'mark.svg' %}" alt="" width="32" height="32">langganin<span class="brand-dot">.</span></a>
+  <div class="workspace"><span class="workspace-avatar">L</span><div>Ruang usaha</div></div>
+  <nav aria-label="Navigasi utama">
+    {% with current=request.resolver_match.url_name %}
+    <a href="{% url 'dashboard' %}" {% if current == 'dashboard' %}aria-current="page"{% endif %}><span class="nav-icon">▦</span>Ringkasan</a>
+    <a href="{% url 'customers' %}" {% if 'customer' in current %}aria-current="page"{% endif %}><span class="nav-icon">◎</span>Pelanggan</a>
+    <a href="{% url 'sales' %}" {% if 'sale' in current %}aria-current="page"{% endif %}><span class="nav-icon">▤</span>Transaksi</a>
+    <a href="{% url 'rewards' %}" {% if 'reward' in current or current == 'redeem' %}aria-current="page"{% endif %}><span class="nav-icon">◇</span>Hadiah & poin</a>
+    {% if is_manager %}
+    <a href="{% url 'campaigns' %}" {% if 'campaign' in current %}aria-current="page"{% endif %}><span class="nav-icon">◉</span>Kampanye</a>
+    <a href="{% url 'audit' %}" {% if current == 'audit' %}aria-current="page"{% endif %}><span class="nav-icon">≡</span>Log aktivitas</a>
+    {% endif %}{% endwith %}
+  </nav>
+  <div class="sidebar-bottom"><span class="avatar">{{ user.username|first|upper }}</span><div>{{ user.username }}<small>{% if is_manager %}Pengelola{% else %}Kasir{% endif %}</small></div><form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout" title="Keluar" aria-label="Keluar">↗</button></form></div>
+</aside>
+<div class="shell">
+  <header class="topbar"><span>Ruang usaha <span class="crumb">/</span> {{ title|default:'Akun' }}</span><div class="topbar-actions"><a class="account-link" href="{% url 'password_change' %}">Ubah kata sandi</a><form class="mobile-logout" method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="logout" aria-label="Keluar" title="Keluar">↗</button></form></div></header>
+  <main id="main">
+    {% for message in messages %}<div class="message {{ message.tags }}" role="status">{{ message }}</div>{% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% else %}
+{% block auth_content %}{% endblock %}
+{% endif %}
+</body></html>

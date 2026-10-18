@@ -1,0 +1,31 @@
+{% extends 'base.html' %}{% load rupiah %}
+{% block content %}
+<div class="page-heading"><h1>Ringkasan</h1><div class="actions"><nav class="period-switch" aria-label="Periode penjualan"><a href="?period=7" {% if period == 7 %}aria-current="true"{% endif %}>7 hari</a><a href="?period=14" {% if period == 14 %}aria-current="true"{% endif %}>14 hari</a><a href="?period=30" {% if period == 30 %}aria-current="true"{% endif %}>30 hari</a></nav><a class="button" href="{% url 'sale_create' %}">＋ Catat transaksi</a></div></div>
+<div class="metrics">
+  <section class="metric"><span>Penjualan · {{ period }} hari</span><strong>{{ totals.revenue|rupiah }}</strong></section>
+  <section class="metric"><span>Transaksi · {{ period }} hari</span><strong>{{ totals.transactions }}</strong></section>
+  <section class="metric"><span>Total pelanggan</span><strong>{{ member_count }}</strong></section>
+  <section class="metric"><span title="Pelanggan dengan minimal dua pembelian dalam periode terpilih">Pembeli berulang · {{ period }} hari</span><strong>{{ repeat_rate }}<em>%</em></strong></section>
+</div>
+<div class="dashboard-grid">
+  <section class="panel revenue-panel"><div class="panel-heading"><h2>Penjualan</h2><span class="muted">{{ start|date:'d M' }} – {{ today|date:'d M Y' }}</span></div>
+    <div class="chart {% if period == 30 %}chart-dense{% endif %}" role="img" aria-label="Grafik penjualan {{ period }} hari">
+      {% for bar in chart %}<div class="chart-column"><div class="chart-track"><div class="chart-bar" style="height:{{ bar.height }}%" title="{{ bar.day|date:'d M' }}: {{ bar.value|rupiah }}"><span class="sr-only">{{ bar.day|date:'d M' }}: {{ bar.value|rupiah }}</span></div></div><span>{% if period != 30 or forloop.counter0|divisibleby:3 or forloop.last %}{{ bar.day|date:'d' }}{% else %}&nbsp;{% endif %}</span></div>{% endfor %}
+    </div>
+  </section>
+  <section class="panel segment-panel"><div class="panel-heading"><h2>Segmen pelanggan</h2></div>
+    <a class="segment-row" href="{% url 'customers' %}?segment=loyal" title="Minimal 3 kunjungan, terakhir dalam 30 hari"><span class="segment-symbol green">◎</span><strong>Pelanggan loyal</strong><b>{{ loyal_count }}</b><span>→</span></a>
+    <a class="segment-row" href="{% url 'customers' %}?segment=at_risk" title="Belum berkunjung kembali lebih dari 30 hari"><span class="segment-symbol amber">◷</span><strong>Perlu disapa</strong><b>{{ risk_count }}</b><span>→</span></a>
+    <a class="segment-row" href="{% url 'customers' %}?segment=new" title="Terdaftar dalam 14 hari, kurang dari 3 kunjungan"><span class="segment-symbol blue">＋</span><strong>Pelanggan baru</strong><b>{{ new_count }}</b><span>→</span></a>
+    {% if is_manager %}<a class="text-link" href="{% url 'campaign_create' %}">Buat kampanye <span>→</span></a>{% endif %}
+  </section>
+  <section class="panel"><div class="panel-heading"><h2>Transaksi terbaru</h2><a class="text-link" href="{% url 'sales' %}">Lihat semua →</a></div>
+    <div class="table-wrap"><table><thead><tr><th>Pelanggan</th><th>Kanal</th><th>Nilai</th><th>Poin</th></tr></thead><tbody>
+    {% for sale in recent_sales %}<tr><td><a href="{% url 'customer_detail' sale.customer_id %}">{{ sale.customer.name }}</a><small>{{ sale.reference }}</small></td><td>{{ sale.get_channel_display }}</td><td class="number">{{ sale.amount|rupiah }}</td><td class="positive">+{{ sale.points }}</td></tr>{% empty %}<tr><td colspan="4" class="empty">Belum ada transaksi.</td></tr>{% endfor %}
+    </tbody></table></div>
+  </section>
+  <section class="panel"><div class="panel-heading"><h2>Pelanggan teratas</h2><span class="muted">Sepanjang waktu</span></div>
+    <div class="top-list">{% for person in top_customers %}<a href="{% url 'customer_detail' person.pk %}" class="top-person"><span class="rank">{{ forloop.counter|stringformat:'02d' }}</span><span class="avatar">{{ person.name|first }}</span><div><strong>{{ person.name }}</strong><small>{{ person.visits }} kunjungan</small></div><b>{{ person.spend|rupiah }}</b></a>{% empty %}<p class="empty">Belum ada pembelian.</p>{% endfor %}</div>
+  </section>
+</div>
+{% endblock %}

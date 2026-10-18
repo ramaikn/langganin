@@ -1,0 +1,19 @@
+{% extends 'base.html' %}{% load static %}
+{% block auth_content %}
+<main class="login-layout">
+  <section class="login-story">
+    <a class="brand" href="{% url 'login' %}"><img src="{% static 'mark.svg' %}" alt="" width="34" height="34">langganin.</a>
+    <div><h1>Bukan sekadar pembeli.<br>Jadikan pelanggan.</h1><p>Kenali pelanggan, apresiasi setiap kunjungan, dan bangun hubungan yang bertahan.</p>
+      <div class="loyalty-card"><div class="card-top"><span>LANGGANIN CLUB</span><span>MEMBER</span></div><div class="card-mark">l.</div><div class="card-bottom"><span>Setiap kunjungan berarti.</span><span>◎ ◎ ◎ ◎</span></div></div>
+    </div>
+    <small>CRM & loyalty untuk usaha dengan pelanggan berulang.</small>
+  </section>
+  <section class="login-panel"><div class="login-form"><h2>Selamat datang kembali</h2><p class="muted">Masuk ke ruang usaha Anda.</p>
+    <form method="post">{% csrf_token %}{{ form.non_field_errors }}
+      {% for field in form %}<div class="field">{{ field.label_tag }}{{ field }}{{ field.errors }}</div>{% endfor %}
+      {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+      <button class="button full" type="submit">Masuk <span>→</span></button>
+    </form>
+  </div></section>
+</main>
+{% endblock %}
